@@ -1,0 +1,35 @@
+---
+const { size = 200 } = Astro.props;
+const radius = size / 2;
+const center = radius;
+const textRadius = radius - 16;
+---
+
+<div class="editorial-seal" style={`width: ${size}px; height: ${size}px;`}>
+  <svg viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <circle cx={center} cy={center} r={radius - 2} fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <circle cx={center} cy={center} r={radius - 10} fill="none" stroke="currentColor" stroke-width="0.5"/>
+    <circle cx={center} cy={center} r={radius - 38} fill="none" stroke="currentColor" stroke-width="0.4" stroke-dasharray="1 2" opacity="0.5"/>
+
+    <defs>
+      <path id="topCurve" d={`M ${center - textRadius},${center} A ${textRadius},${textRadius} 0 0,1 ${center + textRadius},${center}`}/>
+      <path id="bottomCurve" d={`M ${center - textRadius},${center} A ${textRadius},${textRadius} 0 0,0 ${center + textRadius},${center}`}/>
+    </defs>
+    <text font-family="Inter, sans-serif" font-size="9" font-weight="600" letter-spacing="2.5" fill="currentColor">
+      <textPath href="#topCurve" startOffset="50%" text-anchor="middle">SSO GUIDE · EL PASO TEXAS</textPath>
+    </text>
+    <text font-family="Inter, sans-serif" font-size="8" font-weight="500" letter-spacing="2.2" fill="currentColor" opacity="0.85">
+      <textPath href="#bottomCurve" startOffset="50%" text-anchor="middle">EST. 2026 · INDEPENDENT</textPath>
+    </text>
+
+    <text x={center} y={center - 6} font-family="Source Serif 4, serif" font-size="11" font-weight="700" text-anchor="middle" fill="currentColor" letter-spacing="0.5">VOL. 01</text>
+    <text x={center} y={center + 8} font-family="Inter, sans-serif" font-size="6.5" font-weight="500" text-anchor="middle" fill="currentColor" letter-spacing="1.8" opacity="0.7">PLAIN-ENGLISH GUIDE</text>
+    <line x1={center - 22} y1={center + 16} x2={center + 22} y2={center + 16} stroke="currentColor" stroke-width="0.4" opacity="0.5"/>
+    <text x={center} y={center + 26} font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="500" text-anchor="middle" fill="currentColor" letter-spacing="0.8" opacity="0.6">11111 GATEWAY BLVD W</text>
+  </svg>
+</div>
+
+<style>
+  .editorial-seal { color: currentColor; display: inline-block; }
+  .editorial-seal svg { width: 100%; height: 100%; display: block; }
+</style>

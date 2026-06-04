@@ -1,0 +1,293 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { site, centrelink } from '../../data/datos.js';
+
+export function getStaticPaths() {
+  return centrelink.map(c => ({ params: { slug: c.slug } }));
+}
+
+const { slug } = Astro.params;
+const centre = centrelink.find(c => c.slug === slug);
+
+if (!centre) {
+  throw new Error(`No centre found for slug: ${slug}`);
+}
+
+// Build address parts
+const addressParts = [centre.address1, `${centre.suburb} ${centre.state} ${centre.postcode}`, 'Australia'].filter(Boolean);
+const fullAddress = addressParts.join(', ');
+const shortAddress = `${centre.suburb}, ${centre.state} ${centre.postcode}`;
+
+// Google Maps embed URL (no API key needed)
+const mapEmbedUrl = `https://maps.google.com/maps?q=${centre.latitude},${centre.longitude}&hl=en&z=15&output=embed`;
+const mapsLinkUrl = `https://www.google.com/maps/search/?api=1&query=${centre.latitude},${centre.longitude}`;
+const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${centre.latitude},${centre.longitude}`;
+
+// Open today helper
+const dayMap = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const today = dayMap[new Date().getDay()];
+const todayHours = centre.hours.find(h => h.day === today);
+let todayHoursLabel = 'Closed today';
+if (todayHours && todayHours.open && todayHours.close) {
+  todayHoursLabel = `Open today ${todayHours.open}–${todayHours.close}`;
+}
+
+// Schema: GovernmentOffice with full address, hours, geo
+const openingHoursSpec = centre.hours
+  .filter(h => h.open && h.close)
+  .map(h => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: `https://schema.org/${h.day}`,
+    opens: h.open,
+    closes: h.close
+  }));
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `https://${site.domain}/centrelink/${centre.slug}/`,
+      "url": `https://${site.domain}/centrelink/${centre.slug}/`,
+      "name": `${centre.name} — Address, Hours, Phone, Services`,
+      "description": `${centre.name} at ${shortAddress}. Opening hours, services available, contact details, and how to get there.`,
+      "inLanguage": "en-AU"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": `https://${site.domain}/`},
+        {"@type": "ListItem", "position": 2, "name": centre.state_full, "item": `https://${site.domain}/state/${centre.state_full.toLowerCase().replace(/\s+/g, '-')}/`},
+        {"@type": "ListItem", "position": 3, "name": centre.name}
+      ]
+    },
+    {
+      "@type": "GovernmentOffice",
+      "name": centre.name,
+      "description": `${centre.status_chip} service centre serving ${centre.suburb}, ${centre.state_full} and surrounding areas.`,
+      "url": `https://${site.domain}/centrelink/${centre.slug}/`,
+      "telephone": site.centrelink_phone_intl,
+      "address": {
+        "@type": "PostalAddress",
+        ...(centre.address1 ? {"streetAddress": centre.address1} : {}),
+        "addressLocality": centre.suburb,
+        "addressRegion": centre.state,
+        "postalCode": centre.postcode,
+        "addressCountry": "AU"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": centre.latitude,
+        "longitude": centre.longitude
+      },
+      "openingHoursSpecification": openingHoursSpec,
+      "hasMap": mapsLinkUrl,
+      "parentOrganization": {
+        "@type": "GovernmentOrganization",
+        "name": "Services Australia",
+        "url": "https://www.servicesaustralia.gov.au"
+      }
+    }
+  ]
+};
+
+const stateSlug = centre.state_full.toLowerCase().replace(/\s+/g, '-');
+
+// Related centres in same state (max 5)
+const related = centrelink
+  .filter(c => c.state === centre.state && c.slug !== centre.slug)
+  .slice(0, 5);
+---
+
+<Base
+  title={`${centre.name} — Address, Hours, Phone | Centrelink ${centre.suburb} ${centre.state}`}
+  description={`${centre.name} at ${shortAddress}. Opening hours, contact details, services, map and directions. Services: ${centre.status_chip}.`}
+  canonicalPath={`/centrelink/${centre.slug}/`}
+  schema={schema}
+>
+  <Breadcrumbs items={[
+    {label: 'Home', href: '/'},
+    {label: centre.state_full, href: `/state/${stateSlug}/`},
+    {label: centre.name}
+  ]} />
+
+  <article class="page">
+    <header class="page-header">
+      <p class="eyebrow eyebrow-location">Service Centre · {centre.state_full}</p>
+      <h1>{centre.name}</h1>
+      <p class="status-chip">{centre.status_chip} · {todayHoursLabel}</p>
+      <div class="cta-row">
+        <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-primary">
+          <i class="fas fa-phone"></i> Call {site.centrelink_phone}
+        </a>
+        <a href={directionsUrl} class="btn-ghost" target="_blank" rel="noopener">
+          <i class="fas fa-route"></i> Get directions
+        </a>
+        <a href={mapsLinkUrl} class="btn-ghost" target="_blank" rel="noopener">
+          <i class="fas fa-map-location-dot"></i> Open in Maps
+        </a>
+      </div>
+    </header>
+
+    <div class="article-grid-v2">
+      <div class="article-main">
+        <p class="intro">
+          <strong>{centre.name}</strong> is located in <strong>{centre.suburb}, {centre.state_full}</strong> ({centre.postcode}). This Services Australia office handles <strong>{centre.status_chip.toLowerCase()}</strong> services for residents of {centre.suburb} and surrounding suburbs.
+          {!centre.address1 && (
+            <span> The exact street address is best verified via the map below or by calling <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a>.</span>
+          )}
+        </p>
+
+        <div class="map-embed">
+          <iframe
+            src={mapEmbedUrl}
+            width="100%"
+            height="380"
+            style="border:0; border-radius: 8px;"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title={`Map of ${centre.name}`}
+          />
+          <p class="map-note">
+            <i class="fas fa-location-dot"></i> {centre.address1 ? <><strong>{centre.address1}</strong>, </> : ''}{shortAddress}, Australia · Coordinates: <code>{centre.latitude.toFixed(4)}, {centre.longitude.toFixed(4)}</code>
+          </p>
+        </div>
+
+        <h2 id="opening-hours">Opening hours</h2>
+        <table class="hours-table">
+          <thead>
+            <tr><th>Day</th><th>Opening hours</th></tr>
+          </thead>
+          <tbody>
+            {centre.hours.map(h => (
+              <tr class={h.day === today ? 'today' : ''}>
+                <td><strong>{h.day}</strong>{h.day === today && <span class="today-tag"> · Today</span>}</td>
+                <td>
+                  {h.open && h.close ? (
+                    <>
+                      {h.open} – {h.close}
+                      {h.break_start && h.break_close && (
+                        <span class="break-note"> (closed for break {h.break_start}–{h.break_close})</span>
+                      )}
+                    </>
+                  ) : <span class="closed">Closed</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="hours-note"><i class="fas fa-circle-info"></i> Hours based on the Department of Human Services public dataset. Always call before visiting to confirm — public holidays may affect opening hours.</p>
+
+        <h2 id="services">Services available at this centre</h2>
+        <p>{centre.name} provides the following services:</p>
+        <ul class="service-list">
+          {centre.services.includes('Centrelink') && (
+            <li>
+              <strong>Centrelink services</strong> — JobSeeker, Age Pension, Disability Support Pension, Youth Allowance, Family Tax Benefit, Parenting Payment, Carer Payment, and more. <a href="/services/centrelink-payments/">See all Centrelink payments</a>.
+            </li>
+          )}
+          {centre.services.includes('Medicare') && (
+            <li>
+              <strong>Medicare services</strong> — enrolment, Medicare card replacement, claims, and family health cover. <a href="/services/medicare-services/">Learn about Medicare services</a>.
+            </li>
+          )}
+          {centre.services.includes('Veterans Affairs') && (
+            <li>
+              <strong>Veterans Information Service</strong> — DVA support, pensions, and entitlements for current and former Australian Defence Force members.
+            </li>
+          )}
+          {centre.services.includes('NDIS') && (
+            <li>
+              <strong>NDIS (National Disability Insurance Scheme)</strong> — registration, plan management, and access to disability support services.
+            </li>
+          )}
+        </ul>
+
+        <h2 id="how-to-prepare">How to prepare for your visit</h2>
+        <p>Before visiting <strong>{centre.name}</strong>, prepare the following:</p>
+        <ul class="checklist">
+          <li><strong>Photo ID</strong> — driver licence, passport, or Australian birth certificate.</li>
+          <li><strong>myGov account</strong> — if you have one, link Centrelink/Medicare beforehand at <a href="https://my.gov.au" rel="noopener">my.gov.au</a> to speed things up.</li>
+          <li><strong>Bank details</strong> — BSB and account number if applying for or updating payments.</li>
+          <li><strong>Proof of address</strong> — recent utility bill or bank statement.</li>
+          <li><strong>Income or evidence documents</strong> — relevant to the claim you're making (payslips, medical certificates, custody papers, etc.).</li>
+          <li><strong>Interpreter request</strong> — if needed, call <a href={`tel:131450`}>131 450</a> (TIS National) before your visit to arrange one for free.</li>
+        </ul>
+        <p>For a full step-by-step before-you-visit checklist, see <a href="/guides/what-to-bring-to-centrelink/">what to bring to Centrelink</a>.</p>
+
+        <h2 id="booking">Booking an appointment</h2>
+        <p>
+          Many Centrelink services can be done online via <a href="https://my.gov.au" rel="noopener">myGov</a>. For services that need an in-person visit, you can book an appointment by calling <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}><strong>{site.centrelink_phone}</strong></a> (Centrelink general line) or visiting the centre during opening hours. Walk-in service is available but wait times can be 30 minutes to 2 hours depending on time of day.
+        </p>
+        <p>
+          For step-by-step instructions, see <a href="/guides/how-to-book-centrelink-appointment/">how to book a Centrelink appointment</a>.
+        </p>
+
+        <h2 id="faq">Frequently asked questions</h2>
+        <details class="faq-item">
+          <summary>What's the wait time at {centre.name}?</summary>
+          <p>Wait times vary by time of day and time of month. Mornings between 9:00–11:00 are often busiest. The least busy times are typically Wednesday and Thursday afternoons. Call <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a> to ask about current wait times or to book an appointment.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I do my Centrelink business online instead?</summary>
+          <p>Yes. Most Centrelink and Medicare services are available via <a href="https://my.gov.au" rel="noopener">myGov</a> — claims, payment history, updating details, uploading documents, and reporting income. In-person visits are usually only needed for identity verification, document originals, or complex situations. See <a href="/guides/services-australia-online-vs-in-person/">services online vs. in person</a>.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is the {centre.suburb} office accessible?</summary>
+          <p>Most Services Australia centres have wheelchair access, hearing loops, and provide interpreter services on request (call <a href="tel:131450">131 450</a>). Specific accessibility features for {centre.name} can be confirmed by calling <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a> before your visit.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What's the difference between Centrelink and Medicare here?</summary>
+          <p>{centre.name} is a combined service centre. <strong>Centrelink</strong> handles welfare and income support payments (JobSeeker, Age Pension, family payments, etc.). <strong>Medicare</strong> handles health-related services (Medicare card, claims for medical visits, vaccination records). Both can usually be done at the same centre in one visit.</p>
+        </details>
+      </div>
+
+      <aside class="sidebar-stack">
+        <div class="quick-info-card">
+          <h3>At a glance</h3>
+          <dl>
+            <dt>Address</dt>
+            <dd>{centre.address1 || `${centre.suburb}, ${centre.state}`}<br />{shortAddress}, Australia</dd>
+            <dt>Coordinates</dt>
+            <dd><code>{centre.latitude.toFixed(4)}, {centre.longitude.toFixed(4)}</code></dd>
+            <dt>State</dt>
+            <dd>{centre.state_full}</dd>
+            <dt>Postcode</dt>
+            <dd>{centre.postcode}</dd>
+            <dt>Services</dt>
+            <dd>{centre.status_chip}</dd>
+            <dt>Centrelink phone</dt>
+            <dd><a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a></dd>
+            {centre.services.includes('Medicare') && (
+              <>
+                <dt>Medicare phone</dt>
+                <dd><a href={`tel:${site.medicare_phone.replace(/\s+/g, '')}`}>{site.medicare_phone}</a></dd>
+              </>
+            )}
+          </dl>
+          <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-primary btn-block">
+            <i class="fas fa-phone"></i> Call now
+          </a>
+        </div>
+
+        {related.length > 0 && (
+          <div class="related-card">
+            <h3>Other centres in {centre.state_full}</h3>
+            <ul>
+              {related.map(r => (
+                <li>
+                  <a href={`/centrelink/${r.slug}/`}>
+                    {r.name}
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a href={`/state/${stateSlug}/`} class="see-all">View all {centre.state_full} centres →</a>
+          </div>
+        )}
+      </aside>
+    </div>
+  </article>
+</Base>

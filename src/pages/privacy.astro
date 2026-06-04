@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../data/datos.js';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": `https://${site.domain}/privacy/`,
+  "name": "Privacy Policy"
+};
+---
+
+<Base title={`Privacy Policy — ${site.name}`} description="Privacy policy for this independent editorial directory. We do not collect personal information. Standard anonymous web analytics only." canonicalPath="/privacy/" schema={schema}>
+  <Breadcrumbs items={[{label: 'Home', href: '/'}, {label: 'Privacy'}]} />
+
+  <article class="page page-narrow">
+    <header class="page-header">
+      <p class="eyebrow">Privacy</p>
+      <h1>Privacy policy</h1>
+    </header>
+
+    <div class="article-main-narrow">
+      <p class="intro">This page explains what data we collect (very little) and what we do with it (almost nothing). Last updated: 2026.</p>
+
+      <h2>What we collect</h2>
+      <p>This is a static directory website. We do <strong>not</strong> ask you to register, log in, submit forms, or provide any personal information. We have no way to know who you are.</p>
+      <p>However, like nearly all websites, we use anonymous server logs and standard web analytics that record:</p>
+      <ul>
+        <li>Pages you visit on this site</li>
+        <li>The time and date of your visit</li>
+        <li>The general region/country you are visiting from (not exact location)</li>
+        <li>The browser and device type you use</li>
+        <li>The referring website (if any)</li>
+      </ul>
+      <p>This information is aggregated and anonymous — it is not linked to any individual.</p>
+
+      <h2>Cookies and advertising</h2>
+      <p>This site may show advertising from <strong>Google AdSense</strong>. Google AdSense uses cookies to serve ads based on your prior visits to this and other websites. You can opt out of personalised advertising by visiting <a href="https://www.google.com/settings/ads" rel="noopener">Google Ads Settings</a>.</p>
+      <p>Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads to our users based on their visit to our sites and/or other sites on the Internet. Users may opt out of personalised advertising by visiting <a href="https://policies.google.com/technologies/ads" rel="noopener">policies.google.com/technologies/ads</a>.</p>
+
+      <h2>What we do with the data</h2>
+      <p>We use anonymous analytics to understand which pages are popular and how to improve the site. We do not sell, share, or distribute any data to third parties beyond what Google AdSense uses for ad serving as described above.</p>
+
+      <h2>Your Centrelink information</h2>
+      <p>This is an independent directory site. <strong>We have no access to your Centrelink records, claims, payments, or any personal information held by Services Australia.</strong> For privacy policies covering your actual Centrelink data, see the <a href="https://www.servicesaustralia.gov.au/privacy" rel="noopener">Services Australia privacy policy</a>.</p>
+
+      <h2>External links</h2>
+      <p>This site links to external sites including <a href="https://www.servicesaustralia.gov.au" rel="noopener">servicesaustralia.gov.au</a>, <a href="https://my.gov.au" rel="noopener">my.gov.au</a>, and various government resources. We have no control over those sites' privacy practices. Please review their policies separately.</p>
+
+      <h2>Changes to this policy</h2>
+      <p>If we make material changes to this policy, we will update the "Last updated" date at the top. By continuing to use the site after changes are posted, you accept the updated policy.</p>
+
+      <h2>Contact</h2>
+      <p>For privacy questions about this directory site, see our <a href="/contact/">contact page</a>.</p>
+    </div>
+  </article>
+</Base>

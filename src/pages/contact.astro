@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../data/datos.js';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "url": `https://${site.domain}/contact/`,
+  "name": `Contact ${site.name}`
+};
+---
+
+<Base title={`Contact — ${site.name}`} description="Contact this independent editorial directory. For Centrelink enquiries, call 13 24 68. For data corrections or feedback about this site, see below." canonicalPath="/contact/" schema={schema}>
+  <Breadcrumbs items={[{label: 'Home', href: '/'}, {label: 'Contact'}]} />
+
+  <article class="page page-narrow">
+    <header class="page-header">
+      <p class="eyebrow">Contact</p>
+      <h1>Contact us</h1>
+    </header>
+
+    <div class="article-main-narrow">
+      <p class="intro">This is an <strong>independent editorial directory</strong> — not Centrelink. If you need to contact Services Australia, Centrelink, or Medicare for help with your payments, claims, or appointments, use the official channels below.</p>
+
+      <h2>For Centrelink, Medicare, or Services Australia</h2>
+      <ul>
+        <li><strong>Centrelink (general)</strong>: <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a></li>
+        <li><strong>Medicare</strong>: <a href={`tel:${site.medicare_phone.replace(/\s+/g, '')}`}>{site.medicare_phone}</a></li>
+        <li><strong>Calling from overseas</strong>: +61 13 24 68</li>
+        <li><strong>Online</strong>: <a href="https://my.gov.au" rel="noopener">my.gov.au</a></li>
+        <li><strong>Find your local office</strong>: <a href="https://www.servicesaustralia.gov.au/find-us" rel="noopener">servicesaustralia.gov.au/find-us</a></li>
+        <li><strong>In person</strong>: <a href="/">Find a Service Centre near you</a></li>
+        <li><strong>Free interpreter</strong>: <a href="tel:131450">131 450</a> (Translating and Interpreting Service)</li>
+      </ul>
+      <p><strong>This directory cannot help with your Centrelink case, claim, payment, or appointment.</strong> We have no access to your records or any way to act on your behalf.</p>
+
+      <h2>About this site</h2>
+      <p>For corrections, data update requests, or feedback specifically about this directory (this website, not Centrelink itself):</p>
+      <ul>
+        <li><strong>Email</strong>: contact@centrelinkofficesaustralia.com</li>
+        <li>Found a centre that has moved, closed, or has incorrect details? Please let us know which centre and what changed.</li>
+        <li>Services Australia representatives: we welcome official correction requests.</li>
+      </ul>
+
+      <h2>What this directory is</h2>
+      <p>{site.name} is an independent editorial directory built from the public <strong>Department of Human Services Centrelink Office Locations</strong> dataset. We are not affiliated with Services Australia, Centrelink, Medicare, or the Australian Government. See <a href="/about/">About this directory</a> for full details.</p>
+    </div>
+  </article>
+</Base>

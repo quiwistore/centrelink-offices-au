@@ -1,0 +1,33 @@
+---
+import { site } from '../data/datos.js';
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="logo-link">
+      <span class="logo-mark"><i class="fas fa-building-columns"></i></span>
+      <span class="logo-text">Centrelink Offices Australia</span>
+    </a>
+
+    <button class="menu-toggle" aria-label="Open menu" id="menu-toggle">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="main-nav">
+      <a href="/">Home</a>
+      <a href="/state/new-south-wales/">By State</a>
+      <a href="/services/">Services</a>
+      <a href="/guides/">Guides</a>
+      <a href="/about/">About</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const nav = document.getElementById('main-nav');
+  toggle?.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    nav?.classList.toggle('open');
+  });
+</script>

@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { site, services } from '../../data/datos.js';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type": "WebPage", "@id": `https://${site.domain}/services/`, "url": `https://${site.domain}/services/`, "name": "Centrelink & Medicare Services Guide", "description": "Complete guide to all Centrelink and Medicare services available in Australia.", "inLanguage": "en-AU"},
+    {"@type": "BreadcrumbList", "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": `https://${site.domain}/`},
+      {"@type": "ListItem", "position": 2, "name": "Services"}
+    ]},
+    {"@type": "ItemList", "name": "Services Australia services", "numberOfItems": services.length, "itemListElement": services.map((s, i) => ({"@type": "ListItem", "position": i + 1, "url": `https://${site.domain}/services/${s.slug}/`, "name": s.h1}))}
+  ]
+};
+---
+
+<Base title="Centrelink & Medicare Services in Australia — Complete Guide" description="Step-by-step guides to all Centrelink payments, Medicare services, and Services Australia trámites. JobSeeker, Age Pension, Family Tax Benefit, Disability Support, and more." canonicalPath="/services/" schema={schema}>
+  <Breadcrumbs items={[{label: 'Home', href: '/'}, {label: 'Services'}]} />
+
+  <article class="page">
+    <header class="page-header">
+      <p class="eyebrow eyebrow-services">Services Hub</p>
+      <h1>Centrelink & Medicare Services Guide</h1>
+      <p class="status-chip">{services.length} step-by-step service guides</p>
+    </header>
+
+    <div class="article-grid-v2">
+      <div class="article-main">
+        <p class="intro">Detailed guides for every major <strong>Centrelink payment</strong> and <strong>Medicare service</strong> in Australia. Each guide covers eligibility, payment amounts, how to apply (online via myGov or in person at a <a href="/">Service Centre</a>), and common questions. Combined with our directory of <strong>{site.total_centres} Service Centres</strong>, these guides help you find both the service and the centre you need.</p>
+
+        <h2>All services covered</h2>
+        <ul class="service-list-grid">
+          {services.map(s => (
+            <li>
+              <a href={`/services/${s.slug}/`}>
+                <strong>{s.h1}</strong>
+                <span class="centre-meta">
+                  <span class="centre-chip">{s.category}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <aside class="sidebar-stack">
+        <div class="quick-info-card">
+          <h3>Quick access</h3>
+          <dl>
+            <dt>Centrelink line</dt>
+            <dd><a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a></dd>
+            <dt>Medicare line</dt>
+            <dd><a href={`tel:${site.medicare_phone.replace(/\s+/g, '')}`}>{site.medicare_phone}</a></dd>
+            <dt>Online portal</dt>
+            <dd><a href="https://my.gov.au" rel="noopener">myGov</a></dd>
+          </dl>
+        </div>
+        <div class="related-card">
+          <h3>Practical guides</h3>
+          <ul>
+            <li><a href="/guides/how-to-book-centrelink-appointment/">How to book an appointment <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/guides/what-to-bring-to-centrelink/">What to bring to Centrelink <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/guides/centrelink-call-wait-times/">Call wait times <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/guides/services-australia-online-vs-in-person/">Online vs in-person <i class="fas fa-arrow-right"></i></a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </article>
+</Base>

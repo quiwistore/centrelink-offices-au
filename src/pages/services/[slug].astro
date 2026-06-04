@@ -1,0 +1,144 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { site, services } from '../../data/datos.js';
+
+export function getStaticPaths() {
+  return services.map(s => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const service = services.find(s => s.slug === slug);
+if (!service) throw new Error(`No service: ${slug}`);
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `https://${site.domain}/services/${service.slug}/`,
+      "url": `https://${site.domain}/services/${service.slug}/`,
+      "name": service.title,
+      "description": service.meta,
+      "inLanguage": "en-AU"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": `https://${site.domain}/`},
+        {"@type": "ListItem", "position": 2, "name": "Services", "item": `https://${site.domain}/services/`},
+        {"@type": "ListItem", "position": 3, "name": service.h1}
+      ]
+    },
+    ...(service.faqs && service.faqs.length > 0 ? [{
+      "@type": "FAQPage",
+      "mainEntity": service.faqs.map(f => ({
+        "@type": "Question",
+        "name": f.q,
+        "acceptedAnswer": {"@type": "Answer", "text": f.a}
+      }))
+    }] : [])
+  ]
+};
+
+const related = services.filter(s => s.slug !== service.slug).slice(0, 5);
+---
+
+<Base
+  title={service.title}
+  description={service.meta}
+  canonicalPath={`/services/${service.slug}/`}
+  schema={schema}
+>
+  <Breadcrumbs items={[
+    {label: 'Home', href: '/'},
+    {label: 'Services', href: '/services/'},
+    {label: service.h1}
+  ]} />
+
+  <article class="page">
+    <header class="page-header">
+      <p class="eyebrow eyebrow-services">{service.category}</p>
+      <h1>{service.h1}</h1>
+      <p class="status-chip">{service.status_chip}</p>
+      <div class="cta-row">
+        <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-primary">
+          <i class="fas fa-phone"></i> Call Centrelink {site.centrelink_phone}
+        </a>
+        <a href="https://my.gov.au" class="btn-ghost" rel="noopener">
+          <i class="fas fa-arrow-up-right-from-square"></i> myGov
+        </a>
+        <a href="/state/new-south-wales/" class="btn-ghost">
+          <i class="fas fa-list"></i> Find local centre
+        </a>
+      </div>
+    </header>
+
+    <div class="article-grid-v2">
+      <div class="article-main">
+        <p class="intro" set:html={service.intro}></p>
+
+        {service.sections.map(section => (
+          <>
+            <h2 id={section.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-')}>{section.heading}</h2>
+            {Array.isArray(section.body) ? (
+              <ul>
+                {section.body.map(b => <li set:html={b}></li>)}
+              </ul>
+            ) : (
+              <p set:html={section.body}></p>
+            )}
+          </>
+        ))}
+
+        {service.faqs && service.faqs.length > 0 && (
+          <>
+            <h2 id="faq">Frequently asked questions</h2>
+            {service.faqs.map(f => (
+              <details class="faq-item">
+                <summary>{f.q}</summary>
+                <p set:html={f.a}></p>
+              </details>
+            ))}
+          </>
+        )}
+      </div>
+
+      <aside class="sidebar-stack">
+        <div class="quick-info-card">
+          <h3>Quick reference</h3>
+          <dl>
+            <dt>Category</dt>
+            <dd>{service.category}</dd>
+            <dt>Centrelink line</dt>
+            <dd><a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a></dd>
+            <dt>Medicare line</dt>
+            <dd><a href={`tel:${site.medicare_phone.replace(/\s+/g, '')}`}>{site.medicare_phone}</a></dd>
+            <dt>Online</dt>
+            <dd><a href="https://my.gov.au" rel="noopener">myGov</a></dd>
+            <dt>In-person</dt>
+            <dd><a href="/">Find your local centre</a></dd>
+          </dl>
+          <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-primary btn-block">
+            <i class="fas fa-phone"></i> Call now
+          </a>
+        </div>
+
+        <div class="related-card">
+          <h3>Other services</h3>
+          <ul>
+            {related.map(r => (
+              <li>
+                <a href={`/services/${r.slug}/`}>
+                  {r.h1}
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a href="/services/" class="see-all">View all services →</a>
+        </div>
+      </aside>
+    </div>
+  </article>
+</Base>

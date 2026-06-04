@@ -1,0 +1,174 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { site, state_hubs } from '../../data/datos.js';
+
+export function getStaticPaths() {
+  return state_hubs.map(s => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const stateHub = state_hubs.find(s => s.slug === slug);
+
+if (!stateHub) {
+  throw new Error(`No state hub found: ${slug}`);
+}
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `https://${site.domain}/state/${stateHub.slug}/`,
+      "url": `https://${site.domain}/state/${stateHub.slug}/`,
+      "name": `Centrelink Service Centres in ${stateHub.state_full}`,
+      "description": `Complete directory of ${stateHub.count} Centrelink Service Centres in ${stateHub.state_full}. Addresses, hours, contact details, and services available at each centre.`,
+      "inLanguage": "en-AU"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": `https://${site.domain}/`},
+        {"@type": "ListItem", "position": 2, "name": stateHub.state_full}
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "name": `Centrelink Service Centres in ${stateHub.state_full}`,
+      "numberOfItems": stateHub.count,
+      "itemListElement": stateHub.centres.map((c, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "url": `https://${site.domain}/centrelink/${c.slug}/`,
+        "name": c.name
+      }))
+    }
+  ]
+};
+
+// Group centres by first letter of suburb for browsing
+const groupedBySuburb = {};
+stateHub.centres.forEach(c => {
+  const letter = c.suburb[0].toUpperCase();
+  if (!groupedBySuburb[letter]) groupedBySuburb[letter] = [];
+  groupedBySuburb[letter].push(c);
+});
+const letters = Object.keys(groupedBySuburb).sort();
+---
+
+<Base
+  title={`Centrelink Service Centres in ${stateHub.state_full} — All ${stateHub.count} Locations`}
+  description={`Complete directory of ${stateHub.count} Centrelink Service Centres in ${stateHub.state_full}. Find your local centre with addresses, opening hours, and services available.`}
+  canonicalPath={`/state/${stateHub.slug}/`}
+  schema={schema}
+>
+  <Breadcrumbs items={[
+    {label: 'Home', href: '/'},
+    {label: stateHub.state_full}
+  ]} />
+
+  <article class="page">
+    <header class="page-header">
+      <p class="eyebrow eyebrow-location">By State</p>
+      <h1>Centrelink Service Centres in {stateHub.state_full}</h1>
+      <p class="status-chip">{stateHub.count} service centres · Updated from public Australian Government dataset</p>
+      <div class="cta-row">
+        <a href="#all-centres" class="btn-primary">
+          <i class="fas fa-list"></i> Browse all {stateHub.count} centres
+        </a>
+        <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-ghost">
+          <i class="fas fa-phone"></i> Call Centrelink {site.centrelink_phone}
+        </a>
+      </div>
+    </header>
+
+    <div class="article-grid-v2">
+      <div class="article-main">
+        <p class="intro">
+          {stateHub.state_full} has <strong>{stateHub.count} Centrelink Service Centres</strong> operated by Services Australia. These centres provide in-person support for <strong>Centrelink payments, Medicare, NDIS, and Veterans Affairs</strong> services. Most can also be accessed online via <a href="https://my.gov.au" rel="noopener">myGov</a>, but some trámites still need an in-person visit for identity verification or original documents.
+        </p>
+
+        <h2 id="quick-letter-jumps">Jump to suburb</h2>
+        <p class="letter-nav">
+          {letters.map(l => (
+            <a href={`#letter-${l}`}>{l}</a>
+          ))}
+        </p>
+
+        <h2 id="all-centres">All {stateHub.count} Service Centres in {stateHub.state_full}</h2>
+
+        {letters.map(letter => (
+          <div class="letter-group">
+            <h3 id={`letter-${letter}`} class="letter-heading">{letter}</h3>
+            <ul class="centre-list">
+              {groupedBySuburb[letter].map(c => (
+                <li class="centre-list-item">
+                  <a href={`/centrelink/${c.slug}/`}>
+                    <strong>{c.name}</strong>
+                    <span class="centre-meta">
+                      <span class="centre-suburb">{c.suburb} {c.postcode}</span>
+                      <span class="centre-chip">{c.status_chip}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        <h2 id="online-services">Can I do this online instead?</h2>
+        <p>
+          Most Services Australia services in {stateHub.state_full} can be accessed online through <a href="https://my.gov.au" rel="noopener">myGov</a>. This includes claiming payments, updating personal details, uploading documents, reporting income, and managing your Medicare claims. In-person visits are typically only needed for:
+        </p>
+        <ul>
+          <li>Initial identity verification (especially for new claims)</li>
+          <li>Original document presentation (birth certificates, passports)</li>
+          <li>Complex situations requiring face-to-face assistance</li>
+          <li>Interpreter-assisted appointments</li>
+        </ul>
+        <p>For more guidance, see <a href="/guides/services-australia-online-vs-in-person/">services online vs. in-person</a>.</p>
+
+        <h2 id="services-overview">Services available at {stateHub.state_full} centres</h2>
+        <ul>
+          <li><a href="/services/centrelink-payments/"><strong>Centrelink payments</strong></a> — JobSeeker, Age Pension, Family Tax Benefit, and 15+ other income support programs.</li>
+          <li><a href="/services/medicare-services/"><strong>Medicare services</strong></a> — Medicare card, claims, enrolments, and family cover.</li>
+          <li><a href="/services/jobseeker-payment/"><strong>JobSeeker Payment</strong></a> — for unemployed Australians or those with reduced work capacity.</li>
+          <li><a href="/services/age-pension-application/"><strong>Age Pension</strong></a> — income support for eligible Australians of pension age.</li>
+          <li><a href="/services/disability-support-pension/"><strong>Disability Support Pension</strong></a> — for those unable to work due to disability.</li>
+        </ul>
+      </div>
+
+      <aside class="sidebar-stack">
+        <div class="quick-info-card">
+          <h3>{stateHub.state_full}</h3>
+          <dl>
+            <dt>Total centres</dt>
+            <dd>{stateHub.count}</dd>
+            <dt>State code</dt>
+            <dd>{stateHub.state_code}</dd>
+            <dt>Centrelink phone</dt>
+            <dd><a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a></dd>
+            <dt>Medicare phone</dt>
+            <dd><a href={`tel:${site.medicare_phone.replace(/\s+/g, '')}`}>{site.medicare_phone}</a></dd>
+            <dt>Online portal</dt>
+            <dd><a href="https://my.gov.au" rel="noopener">myGov</a></dd>
+          </dl>
+        </div>
+
+        <div class="related-card">
+          <h3>Other states</h3>
+          <ul>
+            {state_hubs.filter(s => s.slug !== stateHub.slug).map(s => (
+              <li>
+                <a href={`/state/${s.slug}/`}>
+                  {s.state_full} <span class="count-pill">{s.count}</span>
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </article>
+</Base>

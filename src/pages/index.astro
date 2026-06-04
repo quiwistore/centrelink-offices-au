@@ -1,0 +1,162 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, state_hubs } from '../data/datos.js';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `https://${site.domain}/#website`,
+      "url": `https://${site.domain}/`,
+      "name": site.name,
+      "description": site.tagline,
+      "inLanguage": "en-AU"
+    },
+    {
+      "@type": "Organization",
+      "@id": `https://${site.domain}/#organization`,
+      "name": site.name,
+      "url": `https://${site.domain}/`,
+      "description": "Independent editorial directory of Centrelink Service Centres in Australia."
+    },
+    {
+      "@type": "ItemList",
+      "name": "Centrelink Service Centres by State",
+      "numberOfItems": state_hubs.length,
+      "itemListElement": state_hubs.map((s, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "url": `https://${site.domain}/state/${s.slug}/`,
+        "name": `${s.state_full} (${s.count} centres)`
+      }))
+    }
+  ]
+};
+---
+
+<Base
+  title={`Centrelink Offices Australia — Directory of All ${site.total_centres} Service Centres`}
+  description={`The complete directory of Centrelink Service Centres in Australia. Find your local centre with address, opening hours, phone, services, and map. All ${site.total_centres} locations across ${site.total_states} states and territories.`}
+  canonicalPath="/"
+  schema={schema}
+>
+  <section class="hero-home">
+    <div class="hero-inner">
+      <p class="eyebrow">Australia · Independent Directory</p>
+      <h1>Find your local Centrelink Service Centre</h1>
+      <p class="lede">
+        Complete directory of <strong>{site.total_centres} Centrelink Service Centres</strong> across all <strong>{site.total_states} states and territories</strong>. Address, opening hours, phone, services, and map for every centre.
+      </p>
+      <div class="cta-row hero-cta">
+        <a href="/state/new-south-wales/" class="btn-primary">
+          <i class="fas fa-list"></i> Browse by state
+        </a>
+        <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-ghost">
+          <i class="fas fa-phone"></i> Call Centrelink {site.centrelink_phone}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="state-grid-section">
+    <div class="section-inner">
+      <h2>Browse by state or territory</h2>
+      <p class="section-sub">Click your state to see all Centrelink Service Centres with addresses, hours, and contact details.</p>
+      <div class="state-grid">
+        {state_hubs.map(s => (
+          <a href={`/state/${s.slug}/`} class="state-tile">
+            <span class="state-code">{s.state_code}</span>
+            <span class="state-name">{s.state_full}</span>
+            <span class="state-count">{s.count} centres</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="section-inner">
+      <h2>What you'll find on this site</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fas fa-map-location-dot"></i>
+          <h3>Every centre, mapped</h3>
+          <p>All {site.total_centres} Centrelink Service Centres with exact coordinates, embedded Google Maps, and direct directions link.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-clock"></i>
+          <h3>Real opening hours</h3>
+          <p>Day-by-day opening hours for every centre — including break times where applicable. Sourced from the public Department of Human Services dataset.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-list-check"></i>
+          <h3>Services by centre</h3>
+          <p>See exactly which services each centre offers: Centrelink, Medicare, NDIS, and Veterans Affairs. Not every centre has every service.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-circle-info"></i>
+          <h3>Before-you-visit guides</h3>
+          <p>What to bring, how to book, online alternatives, and step-by-step guides for the most common Centrelink and Medicare services.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services-band">
+    <div class="section-inner">
+      <h2>Common services explained</h2>
+      <p>Most-searched Services Australia trámites with step-by-step guides:</p>
+      <ul class="service-list-grid">
+        <li><a href="/services/centrelink-payments/"><strong>Centrelink payments overview</strong> — all 15+ payment types</a></li>
+        <li><a href="/services/medicare-services/"><strong>Medicare services</strong> — card, claims, enrolment</a></li>
+        <li><a href="/services/jobseeker-payment/"><strong>JobSeeker Payment</strong> — for unemployed Australians</a></li>
+        <li><a href="/services/age-pension-application/"><strong>Age Pension</strong> — eligibility and how to apply</a></li>
+        <li><a href="/services/disability-support-pension/"><strong>Disability Support Pension</strong> — DSP</a></li>
+        <li><a href="/services/family-tax-benefit/"><strong>Family Tax Benefit</strong> — Part A & B</a></li>
+        <li><a href="/services/parenting-payment/"><strong>Parenting Payment</strong> — for parents and carers</a></li>
+        <li><a href="/services/youth-allowance/"><strong>Youth Allowance</strong> — for students and young job seekers</a></li>
+        <li><a href="/services/carer-payment/"><strong>Carer Payment</strong> — for those caring for someone</a></li>
+        <li><a href="/services/medicare-card-replacement/"><strong>Medicare card replacement</strong></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="guides-band">
+    <div class="section-inner">
+      <h2>Practical guides</h2>
+      <ul class="guides-grid">
+        <li><a href="/guides/how-to-book-centrelink-appointment/"><strong>How to book a Centrelink appointment</strong> — by phone, in person, or via myGov</a></li>
+        <li><a href="/guides/what-to-bring-to-centrelink/"><strong>What to bring to Centrelink</strong> — full document checklist</a></li>
+        <li><a href="/guides/centrelink-call-wait-times/"><strong>Centrelink call wait times</strong> — best times to call</a></li>
+        <li><a href="/guides/services-australia-online-vs-in-person/"><strong>Online vs in-person</strong> — what can you do without visiting</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="section-inner">
+      <h2>Frequently asked questions</h2>
+      <details class="faq-item">
+        <summary>Is this the official Centrelink website?</summary>
+        <p>No. This is an <strong>independent editorial directory</strong>, not affiliated with Services Australia, Centrelink, or the Australian Government. The official site is <a href="https://www.servicesaustralia.gov.au">servicesaustralia.gov.au</a>. We compile public dataset information into searchable, well-organised pages — but always verify critical details by calling the centre directly.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How current is the data on this site?</summary>
+        <p>Centre locations, addresses, and opening hours are based on the <strong>Department of Human Services public dataset</strong> (current as of 9 January 2019), released under Creative Commons Attribution 3.0 Australia. Phone numbers and online services links are kept current. Because some centres may have moved or changed hours, <strong>always call {site.centrelink_phone}</strong> to confirm before visiting.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How many Centrelink Service Centres are in Australia?</summary>
+        <p>There are <strong>{site.total_centres} Centrelink Service Centres</strong> across Australia (the centres with staff). Additionally, there are Agents (in newsagencies, post offices in rural areas) and Access Points (self-service kiosks). This directory focuses on the <strong>{site.total_centres} staffed Service Centres</strong> only. The most centres are in <strong>New South Wales (103)</strong>, followed by Queensland (69), and Victoria (59).</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I do everything online instead of visiting a centre?</summary>
+        <p>Most things — yes. <a href="https://my.gov.au" rel="noopener">myGov</a> handles claims, payment updates, document uploads, and Medicare claims. In-person visits are mainly needed for identity verification, original documents, or complex situations. See our <a href="/guides/services-australia-online-vs-in-person/">online vs in-person guide</a> for details.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What number do I call?</summary>
+        <p>The Centrelink general line is <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}><strong>{site.centrelink_phone}</strong></a> for most payments. For Medicare it's <a href={`tel:${site.medicare_phone.replace(/\s+/g, '')}`}><strong>{site.medicare_phone}</strong></a>. Different payments have different dedicated lines — these are listed in the relevant guides. Calling from overseas: <strong>+61 13 24 68</strong>.</p>
+      </details>
+    </div>
+  </section>
+</Base>

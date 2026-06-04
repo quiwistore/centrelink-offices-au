@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../data/datos.js';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "url": `https://${site.domain}/about/`,
+  "name": `About ${site.name}`,
+  "description": "Independent editorial directory of Centrelink Service Centres in Australia."
+};
+---
+
+<Base title={`About — ${site.name}`} description="About this independent editorial directory of Centrelink Service Centres in Australia. Data sources, our editorial standards, and how to contact us." canonicalPath="/about/" schema={schema}>
+  <Breadcrumbs items={[{label: 'Home', href: '/'}, {label: 'About'}]} />
+
+  <article class="page page-narrow">
+    <header class="page-header">
+      <p class="eyebrow">About</p>
+      <h1>About this directory</h1>
+    </header>
+
+    <div class="article-main-narrow">
+      <p class="intro"><strong>{site.name}</strong> is an independent editorial directory covering all <strong>{site.total_centres} Centrelink Service Centres</strong> across Australia's <strong>{site.total_states} states and territories</strong>. We are <strong>not affiliated with Services Australia, Centrelink, Medicare, or the Australian Government</strong>.</p>
+
+      <h2>What we do</h2>
+      <p>We compile, structure, and present publicly-available data about Centrelink Service Centres into a searchable, well-organised reference. Every centre has its own page with address, opening hours, coordinates, embedded map, services offered, and contact details. Combined with practical guides on common Services Australia trámites, this directory aims to be the most complete public reference for finding and visiting a Centrelink office in Australia.</p>
+
+      <h2>Data sources</h2>
+      <p>Centre locations, addresses, suburb, postcode, latitude, longitude, and opening hours are sourced from the <strong>Department of Human Services Centrelink Office Locations</strong> public dataset, current as of 9 January 2019, released under <a href="https://creativecommons.org/licenses/by/3.0/au/" rel="noopener">Creative Commons Attribution 3.0 Australia</a>. The dataset is publicly available via <a href="https://data.gov.au" rel="noopener">data.gov.au</a>.</p>
+      <p>Phone numbers (Centrelink {site.centrelink_phone}, Medicare {site.medicare_phone}), service descriptions, and online portal links are kept current. Because individual centres may have moved, changed hours, or closed since the dataset was published, <strong>we always recommend calling the centre before visiting</strong>. For the authoritative office locator, see <a href="https://www.servicesaustralia.gov.au/find-us" rel="noopener">servicesaustralia.gov.au/find-us</a>.</p>
+
+      <h2>Editorial standards</h2>
+      <ul>
+        <li><strong>Data integrity</strong> — we present the underlying public dataset accurately and link to original sources.</li>
+        <li><strong>No misleading affiliation</strong> — every page clearly identifies this as an independent directory, not an official government site.</li>
+        <li><strong>No personal information</strong> — we don't collect, store, or process visitor personal data beyond standard anonymous web analytics.</li>
+        <li><strong>Transparent dating</strong> — we openly disclose the age of the underlying dataset and recommend phone verification.</li>
+      </ul>
+
+      <h2>For Services Australia / corrections</h2>
+      <p>If you represent Services Australia and would like us to update or correct information, please <a href="/contact/">contact us</a>. We also welcome corrections from users who have visited a centre and found discrepancies.</p>
+
+      <h2>Disclaimer</h2>
+      <p>The information provided on this site is for general informational purposes only. While we make every effort to keep the directory accurate and current, we make no warranties or representations of any kind about the completeness, accuracy, reliability, or suitability of the information. Any reliance you place on such information is strictly at your own risk. For binding information about Centrelink services and office details, always consult the official source: <a href="https://www.servicesaustralia.gov.au" rel="noopener">servicesaustralia.gov.au</a> or call <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a>.</p>
+    </div>
+  </article>
+</Base>
