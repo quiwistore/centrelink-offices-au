@@ -1,5 +1,9 @@
 ---
-const { items = [] } = Astro.props;
+import { site } from '../data/datos.js';
+const { items = [], ld = false } = Astro.props;
+// ld: emite el schema BreadcrumbList (para paginas que no lo traen en su propio schema)
+const path = Astro.url.pathname;
+const bl = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.label, item: `https://${site.domain}${it.href || path}` })) };
 // items: [{ label: "Home", href: "/" }, { label: "Consulado", href: "/consulado/" }, { label: "Dirección" }]
 ---
 
@@ -17,3 +21,4 @@ const { items = [] } = Astro.props;
     ))}
   </ol>
 </nav>
+{ld && <script type="application/ld+json" set:html={JSON.stringify(bl)} />}

@@ -25252,7 +25252,7 @@ export const guides = [
           "<strong>Driver licence</strong> — 40 points",
           "<strong>Medicare card</strong> — 25 points",
           "<strong>Bank-issued ATM/debit card</strong> — 25 points",
-          "Bring originals, not photocopies. For example: passport (70) + Medicare card (25) + bank card (25) = 120 points ✓"
+          "Bring originals, not photocopies. For example: passport (70) + Medicare card (25) + bank card (25) = 120 points (meets the requirement)"
         ]
       },
       {
