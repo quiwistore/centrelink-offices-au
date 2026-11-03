@@ -1922,7 +1922,13 @@
   </url>
   <url>
     <loc>https://centrelinkofficesaustralia.com/contact/</loc>
-    <lastmod>2026-06-04</lastmod>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://centrelinkofficesaustralia.com/cookies/</loc>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1958,7 +1964,7 @@
   </url>
   <url>
     <loc>https://centrelinkofficesaustralia.com/privacy/</loc>
-    <lastmod>2026-06-04</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2075,5 +2081,11 @@
     <lastmod>2026-06-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://centrelinkofficesaustralia.com/terms/</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

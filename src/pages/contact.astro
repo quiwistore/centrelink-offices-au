@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { site } from '../data/datos.js';
+import LS from '../data/contacto.json';
 
 const schema = {
   "@context": "https://schema.org",
@@ -38,7 +39,7 @@ const schema = {
       <h2>About this site</h2>
       <p>For corrections, data update requests, or feedback specifically about this directory (this website, not Centrelink itself):</p>
       <ul>
-        <li><strong>Email</strong>: contact@centrelinkofficesaustralia.com</li>
+        <li><strong>Email</strong>: <a href={`mailto:${LS.email}`}>{LS.email}</a></li>
         <li>Found a centre that has moved, closed, or has incorrect details? Please let us know which centre and what changed.</li>
         <li>Services Australia representatives: we welcome official correction requests.</li>
       </ul>

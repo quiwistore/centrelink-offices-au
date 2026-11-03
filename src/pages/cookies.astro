@@ -1,0 +1,30 @@
+---
+// generado por herramientas-investigacion/legales
+import L from '../data/legal.json';
+import LS from '../data/contacto.json';
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../data/datos.js';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": `https://${site.domain}/cookies/`,
+  "name": "Cookie policy"
+};
+---
+
+<Base title={`Cookie policy — ${site.name}`} description="Which cookies and browser storage Centrelink Offices Australia uses, by category: none of its own, Google ad cookies when ads are shown, and how to turn them of" canonicalPath="/cookies/" schema={schema}>
+  <Breadcrumbs items={[{label: 'Home', href: '/'}, {label: 'Cookies'}]} />
+
+  <article class="page page-narrow">
+    <header class="page-header">
+      <p class="eyebrow">Cookies</p>
+      <h1>Cookie policy</h1>
+    </header>
+
+    <div class="article-main-narrow">
+<Fragment set:html={L['cookies'].html.replaceAll('{{EMAIL}}', LS.email)} />
+    </div>
+  </article>
+</Base>
