@@ -203,7 +203,7 @@ const tasks = [
             ))}
           </tbody>
         </table>
-        <p class="hours-note"><i class="fas fa-circle-info"></i> Hours based on the Department of Human Services public dataset. Always call before visiting to confirm — public holidays may affect opening hours.</p>
+        <p class="hours-note"><i class="fas fa-circle-info"></i> Hours based on Services Australia's published office location data, last checked November 2026. Always call before visiting to confirm — public holidays may affect opening hours.</p>
 
         <h2 id="services">Services available at this centre</h2>
         <p>{centre.name} provides the following services:</p>
@@ -255,7 +255,7 @@ const tasks = [
 
         <h2 id="booking">Booking an appointment</h2>
         <p>
-          Many Centrelink services can be done online via <a href="https://my.gov.au" rel="noopener">myGov</a>. For services that need an in-person visit, you can book an appointment by calling <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}><strong>{site.centrelink_phone}</strong></a> (Centrelink general line) or visiting the centre during opening hours. Walk-in service is available but wait times can be 30 minutes to 2 hours depending on time of day.
+          Many Centrelink services can be done online via <a href="https://my.gov.au" rel="noopener">myGov</a>. For services that need an in-person visit, you can book an appointment by calling <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}><strong>{site.centrelink_phone}</strong></a> (Centrelink general line) or visiting the centre during opening hours. Walk-in service is available, but waits vary with the time of day, so booking is the safer option.
         </p>
         <p>
           For step-by-step instructions, see <a href="/guides/how-to-book-centrelink-appointment/">how to book a Centrelink appointment</a>.
@@ -275,7 +275,7 @@ const tasks = [
         <h2 id="faq">Frequently asked questions</h2>
         <details class="faq-item">
           <summary>What's the wait time at {centre.name}?</summary>
-          <p>Wait times vary by time of day and time of month. Mornings between 9:00–11:00 are often busiest. The least busy times are typically Wednesday and Thursday afternoons. Call <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a> to ask about current wait times or to book an appointment.</p>
+          <p>Wait times vary by time of day and time of month, and Services Australia does not publish them per centre. Call <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a> to ask about current wait times or to book an appointment.</p>
         </details>
         <details class="faq-item">
           <summary>Can I do my Centrelink business online instead?</summary>
