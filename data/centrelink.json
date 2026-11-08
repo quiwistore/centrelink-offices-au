@@ -8797,36 +8797,36 @@
       "hours": [
         {
           "day": "Monday",
-          "open": null,
-          "close": null,
+          "open": "08:30",
+          "close": "16:30",
           "break_start": null,
           "break_close": null
         },
         {
           "day": "Tuesday",
-          "open": null,
-          "close": null,
+          "open": "08:30",
+          "close": "16:30",
           "break_start": null,
           "break_close": null
         },
         {
           "day": "Wednesday",
-          "open": null,
-          "close": null,
+          "open": "08:30",
+          "close": "16:30",
           "break_start": null,
           "break_close": null
         },
         {
           "day": "Thursday",
-          "open": null,
-          "close": null,
+          "open": "08:30",
+          "close": "16:30",
           "break_start": null,
           "break_close": null
         },
         {
           "day": "Friday",
-          "open": null,
-          "close": null,
+          "open": "08:30",
+          "close": "16:30",
           "break_start": null,
           "break_close": null
         },

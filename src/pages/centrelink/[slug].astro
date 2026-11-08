@@ -24,6 +24,8 @@ const mapEmbedUrl = `https://maps.google.com/maps?q=${centre.latitude},${centre.
 const mapsLinkUrl = `https://www.google.com/maps/search/?api=1&query=${centre.latitude},${centre.longitude}`;
 const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${centre.latitude},${centre.longitude}`;
 
+const hasHours = centre.hours.some(h => h.open && h.close);
+
 // "Today" is worked out in the visitor's browser (this is a static site)
 const timeZones = { NSW: 'Australia/Sydney', ACT: 'Australia/Sydney', VIC: 'Australia/Melbourne', TAS: 'Australia/Hobart', QLD: 'Australia/Brisbane', SA: 'Australia/Adelaide', NT: 'Australia/Darwin', WA: 'Australia/Perth' };
 
@@ -181,6 +183,7 @@ const tasks = [
         </div>
 
         <h2 id="opening-hours">Opening hours</h2>
+        {hasHours ? (
         <table class="hours-table" data-hours data-tz={timeZones[centre.state]}>
           <thead>
             <tr><th>Day</th><th>Opening hours</th></tr>
@@ -203,6 +206,9 @@ const tasks = [
             ))}
           </tbody>
         </table>
+        ) : (
+        <p>Services Australia does not publish regular opening hours for this centre. Call <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}><strong>{site.centrelink_phone}</strong></a> before you travel to confirm when it is open.</p>
+        )}
         <p class="hours-note"><i class="fas fa-circle-info"></i> Hours based on Services Australia's published office location data, last checked November 2026. Always call before visiting to confirm — public holidays may affect opening hours.</p>
 
         <h2 id="services">Services available at this centre</h2>
