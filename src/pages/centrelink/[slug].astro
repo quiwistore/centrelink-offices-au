@@ -24,14 +24,8 @@ const mapEmbedUrl = `https://maps.google.com/maps?q=${centre.latitude},${centre.
 const mapsLinkUrl = `https://www.google.com/maps/search/?api=1&query=${centre.latitude},${centre.longitude}`;
 const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${centre.latitude},${centre.longitude}`;
 
-// Open today helper
-const dayMap = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const today = dayMap[new Date().getDay()];
-const todayHours = centre.hours.find(h => h.day === today);
-let todayHoursLabel = 'Closed today';
-if (todayHours && todayHours.open && todayHours.close) {
-  todayHoursLabel = `Open today ${todayHours.open}–${todayHours.close}`;
-}
+// "Today" is worked out in the visitor's browser (this is a static site)
+const timeZones = { NSW: 'Australia/Sydney', ACT: 'Australia/Sydney', VIC: 'Australia/Melbourne', TAS: 'Australia/Hobart', QLD: 'Australia/Brisbane', SA: 'Australia/Adelaide', NT: 'Australia/Darwin', WA: 'Australia/Perth' };
 
 // Schema: GovernmentOffice with full address, hours, geo
 const openingHoursSpec = centre.hours
@@ -94,10 +88,36 @@ const schema = {
 
 const stateSlug = centre.state_full.toLowerCase().replace(/\s+/g, '-');
 
-// Related centres in same state (max 5)
-const related = centrelink
-  .filter(c => c.state === centre.state && c.slug !== centre.slug)
-  .slice(0, 5);
+// Nearest centres by real distance (any state: border towns matter)
+const toRad = (d) => d * Math.PI / 180;
+const distanceKm = (a, b) => {
+  const dLat = toRad(b.latitude - a.latitude);
+  const dLon = toRad(b.longitude - a.longitude);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.latitude)) * Math.cos(toRad(b.latitude)) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(h));
+};
+const nearby = centrelink
+  .filter(c => c.slug !== centre.slug)
+  .map(c => ({ ...c, km: distanceKm(centre, c) }))
+  .sort((a, b) => a.km - b.km)
+  .slice(0, 6);
+
+const centrelinkTasks = [
+  { href: '/services/jobseeker-payment/', icon: 'fa-briefcase', title: 'JobSeeker Payment', text: 'Out of work: who can claim and how' },
+  { href: '/services/age-pension-application/', icon: 'fa-person-cane', title: 'Age Pension', text: 'Eligibility and how to apply' },
+  { href: '/services/disability-support-pension/', icon: 'fa-wheelchair', title: 'Disability Support Pension', text: 'Requirements and the claim process' },
+  { href: '/services/family-tax-benefit/', icon: 'fa-people-roof', title: 'Family Tax Benefit', text: 'Part A and Part B explained' },
+  { href: '/services/parenting-payment/', icon: 'fa-children', title: 'Parenting Payment', text: 'For parents and carers' },
+  { href: '/services/youth-allowance/', icon: 'fa-graduation-cap', title: 'Youth Allowance', text: 'Students and young job seekers' },
+  { href: '/services/carer-payment/', icon: 'fa-hand-holding-heart', title: 'Carer Payment', text: 'If you care for someone full time' },
+];
+const medicareTasks = [
+  { href: '/services/medicare-card-replacement/', icon: 'fa-id-card', title: 'Replace a Medicare card', text: 'Lost, stolen or damaged card' },
+];
+const tasks = [
+  ...(centre.services.includes('Centrelink') ? centrelinkTasks : []),
+  ...(centre.services.includes('Medicare') ? medicareTasks : []),
+];
 ---
 
 <Base
@@ -116,29 +136,31 @@ const related = centrelink
     <header class="page-header">
       <p class="eyebrow eyebrow-location">Service Centre · {centre.state_full}</p>
       <h1>{centre.name}</h1>
-      <p class="status-chip">{centre.status_chip} · {todayHoursLabel}</p>
+      <p class="status-chip">{centre.status_chip}<span id="today-label"></span></p>
+      <p class="intro hero-intro">
+        <strong>{centre.name}</strong> is {centre.address1 ? <>at <strong>{centre.address1}, {shortAddress}</strong></> : <>in <strong>{centre.suburb}, {centre.state_full}</strong> ({centre.postcode})</>}. This Services Australia office handles <strong>{centre.status_chip}</strong> services for residents of {centre.suburb} and surrounding suburbs. Call Centrelink on <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}><strong>{site.centrelink_phone}</strong></a>.
+        {!centre.address1 && (
+          <span> The exact street address is best verified via the map below or by phone.</span>
+        )}
+      </p>
       <div class="cta-row">
-        <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`} class="btn-primary">
-          <i class="fas fa-phone"></i> Call {site.centrelink_phone}
+        <a href="/guides/how-to-book-centrelink-appointment/" class="btn-primary">
+          <i class="fas fa-calendar-check"></i> Book an appointment
         </a>
-        <a href={directionsUrl} class="btn-ghost" target="_blank" rel="noopener">
-          <i class="fas fa-route"></i> Get directions
+        <a href="/guides/what-to-bring-to-centrelink/" class="btn-ghost">
+          <i class="fas fa-list-check"></i> What to bring
         </a>
-        <a href={mapsLinkUrl} class="btn-ghost" target="_blank" rel="noopener">
-          <i class="fas fa-map-location-dot"></i> Open in Maps
+        <a href="/guides/centrelink-call-wait-times/" class="btn-ghost">
+          <i class="fas fa-clock"></i> Call wait times
+        </a>
+        <a href="/guides/services-australia-online-vs-in-person/" class="btn-ghost">
+          <i class="fas fa-laptop"></i> Do it online?
         </a>
       </div>
     </header>
 
     <div class="article-grid-v2">
       <div class="article-main">
-        <p class="intro">
-          <strong>{centre.name}</strong> is located in <strong>{centre.suburb}, {centre.state_full}</strong> ({centre.postcode}). This Services Australia office handles <strong>{centre.status_chip.toLowerCase()}</strong> services for residents of {centre.suburb} and surrounding suburbs.
-          {!centre.address1 && (
-            <span> The exact street address is best verified via the map below or by calling <a href={`tel:${site.centrelink_phone.replace(/\s+/g, '')}`}>{site.centrelink_phone}</a>.</span>
-          )}
-        </p>
-
         <div class="map-embed">
           <iframe
             src={mapEmbedUrl}
@@ -152,17 +174,21 @@ const related = centrelink
           <p class="map-note">
             <i class="fas fa-location-dot"></i> {centre.address1 ? <><strong>{centre.address1}</strong>, </> : ''}{shortAddress}, Australia · Coordinates: <code>{centre.latitude.toFixed(4)}, {centre.longitude.toFixed(4)}</code>
           </p>
+          <div class="map-actions">
+            <a href={directionsUrl} class="btn-ghost" target="_blank" rel="noopener"><i class="fas fa-route"></i> Get directions</a>
+            <a href={mapsLinkUrl} class="btn-ghost" target="_blank" rel="noopener"><i class="fas fa-map-location-dot"></i> Open in Maps</a>
+          </div>
         </div>
 
         <h2 id="opening-hours">Opening hours</h2>
-        <table class="hours-table">
+        <table class="hours-table" data-hours data-tz={timeZones[centre.state]}>
           <thead>
             <tr><th>Day</th><th>Opening hours</th></tr>
           </thead>
           <tbody>
             {centre.hours.map(h => (
-              <tr class={h.day === today ? 'today' : ''}>
-                <td><strong>{h.day}</strong>{h.day === today && <span class="today-tag"> · Today</span>}</td>
+              <tr data-day={h.day} data-open={h.open && h.close ? h.open : undefined} data-close={h.open && h.close ? h.close : undefined}>
+                <td><strong>{h.day}</strong></td>
                 <td>
                   {h.open && h.close ? (
                     <>
@@ -204,6 +230,17 @@ const related = centrelink
           )}
         </ul>
 
+        <h3 class="cards-title">What do you need to do?</h3>
+        <div class="task-grid">
+          {tasks.map(t => (
+            <a href={t.href} class="task-card">
+              <i class={`fas ${t.icon}`}></i>
+              <span><strong>{t.title}</strong><small>{t.text}</small></span>
+              <i class="fas fa-arrow-right task-arrow"></i>
+            </a>
+          ))}
+        </div>
+
         <h2 id="how-to-prepare">How to prepare for your visit</h2>
         <p>Before visiting <strong>{centre.name}</strong>, prepare the following:</p>
         <ul class="checklist">
@@ -223,6 +260,17 @@ const related = centrelink
         <p>
           For step-by-step instructions, see <a href="/guides/how-to-book-centrelink-appointment/">how to book a Centrelink appointment</a>.
         </p>
+
+        <h2 id="nearby">Centrelink offices near {centre.suburb}</h2>
+        <div class="near-grid">
+          {nearby.map(n => (
+            <a href={`/centrelink/${n.slug}/`} class="near-card">
+              <span><strong>{n.name}</strong><small>{n.suburb}, {n.state} {n.postcode}</small></span>
+              <b>{n.km < 10 ? n.km.toFixed(1) : Math.round(n.km)} km</b>
+            </a>
+          ))}
+        </div>
+        <p class="hours-note">Straight-line distance from this centre. <a href={`/state/${stateSlug}/`}>See all {centre.state_full} centres</a>.</p>
 
         <h2 id="faq">Frequently asked questions</h2>
         <details class="faq-item">
@@ -271,23 +319,29 @@ const related = centrelink
           </a>
         </div>
 
-        {related.length > 0 && (
-          <div class="related-card">
-            <h3>Other centres in {centre.state_full}</h3>
-            <ul>
-              {related.map(r => (
-                <li>
-                  <a href={`/centrelink/${r.slug}/`}>
-                    {r.name}
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <a href={`/state/${stateSlug}/`} class="see-all">View all {centre.state_full} centres →</a>
-          </div>
-        )}
+        <div class="related-card">
+          <h3>Before you go</h3>
+          <ul>
+            <li><a href="/guides/what-to-bring-to-centrelink/">What to bring to Centrelink <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/guides/how-to-book-centrelink-appointment/">How to book an appointment <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/guides/centrelink-call-wait-times/">Best times to call <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/guides/services-australia-online-vs-in-person/">Online vs in person <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/services/centrelink-payments/">All Centrelink payments <i class="fas fa-arrow-right"></i></a></li>
+            <li><a href="/services/medicare-services/">Medicare services <i class="fas fa-arrow-right"></i></a></li>
+          </ul>
+        </div>
       </aside>
     </div>
   </article>
+  <script is:inline>
+  (function(){
+    var t=document.querySelector('[data-hours]');if(!t)return;
+    var day;try{day=new Intl.DateTimeFormat('en-AU',{weekday:'long',timeZone:t.dataset.tz}).format(new Date())}catch(e){return}
+    var row=t.querySelector('tr[data-day="'+day+'"]');if(!row)return;
+    row.classList.add('today');
+    var tag=document.createElement('span');tag.className='today-tag';tag.textContent=' · Today';row.querySelector('td').appendChild(tag);
+    var l=document.getElementById('today-label');
+    if(l)l.textContent=' · '+(row.dataset.open?'Open today '+row.dataset.open+'–'+row.dataset.close:'Closed today');
+  })();
+  </script>
 </Base>
