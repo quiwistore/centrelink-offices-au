@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/datos.js';
 
-const { title, description, canonicalPath = '', schema = null } = Astro.props;
+const { title, description, canonicalPath = '', schema = null, noAds = false } = Astro.props;
 const canonicalUrl = `https://${site.domain}${canonicalPath}`;
 ---
 
@@ -34,6 +34,7 @@ const canonicalUrl = `https://${site.domain}${canonicalPath}`;
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
   {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+  {!noAds && <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7716650869618779" crossorigin="anonymous"></script>}
 </head>
 <body>
   <Header />
